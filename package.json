@@ -1,0 +1,48 @@
+{
+  "name": "lunr-module",
+  "version": "0.1.0",
+  "description": "Add full-text search to your nuxt application using lunr.js",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "pimlie <pimlie@hotmail.com>"
+    }
+  ],
+  "main": "lib/module.js",
+  "repository": "pimlie/lunr-module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "nuxt example",
+    "build": "nuxt build example",
+    "lint": "eslint --ext .js,.vue example lib test",
+    "test": "jest",
+    "release": "yarn lint && yarn test && standard-version"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "lunr": "^2.3.6",
+    "lunr-languages": "^1.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@commitlint/cli": "latest",
+    "@commitlint/config-conventional": "latest",
+    "@nuxtjs/eslint-config": "latest",
+    "babel-eslint": "latest",
+    "babel-jest": "latest",
+    "codecov": "latest",
+    "eslint": "latest",
+    "get-port": "latest",
+    "husky": "latest",
+    "jest": "latest",
+    "nuxt-edge": "latest",
+    "request": "latest",
+    "request-promise-native": "latest",
+    "standard-version": "latest"
+  }
+}
