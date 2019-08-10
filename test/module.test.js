@@ -38,6 +38,8 @@ describe('basic', () => {
     const window = await nuxt.server.renderAndGetWindow(url('/en/'))
     const { document } = window
 
+    await waitFor(500)
+
     expect(document.querySelectorAll('li').length).toBe(0)
     const input = document.querySelector('input')
     input.value = 'alan'
@@ -45,7 +47,7 @@ describe('basic', () => {
     const event = new window.Event('input')
     input.dispatchEvent(event)
 
-    await waitFor(1000)
+    await waitFor(500)
 
     expect(document.querySelectorAll('li').length).toBe(1)
   })
@@ -54,6 +56,8 @@ describe('basic', () => {
     const window = await nuxt.server.renderAndGetWindow(url('/nl/'))
     const { document } = window
 
+    await waitFor(500)
+
     expect(document.querySelectorAll('li').length).toBe(0)
     const input = document.querySelector('input')
     input.value = 'alan'
@@ -61,7 +65,7 @@ describe('basic', () => {
     const event = new window.Event('input')
     input.dispatchEvent(event)
 
-    await waitFor(1000)
+    await waitFor(500)
 
     expect(document.querySelectorAll('li').length).toBe(2)
   })

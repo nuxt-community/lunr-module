@@ -1,7 +1,7 @@
 <template>
   <component :is="tag" ref="lunr" class="lunr-search">
     <input
-      :id="`search-${id}`"
+      :id="`lunr-search-${id}`"
       class="lunr-input"
       v-model="searchText" type="text"
       :placeholder="placeholder"
@@ -10,8 +10,6 @@
       aria-expanded="showResults"
       autocomplete="off"
       spellcheck="false"
-      @focus="hasFocus = true"
-      @blur="hasFocus = true"
       @keyup.enter="keyEnter"
       @keyup.up="keyUp"
       @keyup.down="keyDown"
@@ -22,7 +20,7 @@
       v-show="showResults"
       tabIndex="-1"
       ref="results"
-      :aria-labelledby="`search-${id}`"
+      :aria-labelledby="`lunr-search-${id}`"
       @keyup.enter="keyEnter"
       @keydown.up.stop.prevent
       @keydown.down.stop.prevent
@@ -57,10 +55,10 @@
 import lunr from 'lunr'
 <% if (options.supportedLanguages) { %>
 import lunrStemmer from 'lunr-languages/lunr.stemmer.support'
-<%= options.supportedLanguages.map(language => `import ${language}LunrLanguage from 'lunr-languages/lunr.${language}'`) %>
+<%= options.supportedLanguages.map(language => `import ${language}LunrLanguage from 'lunr-languages/lunr.${language}'`).join('\n') %>
 
 !lunr.stemmerSupport && lunrStemmer(lunr)
-<%= options.supportedLanguages.map(language => `!lunr['${language}'] && ${language}LunrLanguage(lunr)`) %>
+<%= options.supportedLanguages.map(language => `!lunr['${language}'] && ${language}LunrLanguage(lunr)`).join('\n') %>
 <% } %>
 
 export default {
@@ -79,12 +77,12 @@ export default {
     },
     lang: {
       type: String,
-      default: 'en'
+      default: '<%= options.defaultLanguage %>',
+      validator: val => <%= JSON.stringify(['en'].concat(options.supportedLanguages)) %>.includes(val)
     }
   },
   data() {
     return {
-      hasFocus: false,
       status: '',
       searchMeta: undefined,
       searchText: '',
@@ -94,7 +92,15 @@ export default {
   },
   computed: {
     showResults() {
-      return !!(this.status || (this.resultsVisible && this.searchResults.length))
+      if (this.status) {
+        return true
+      }
+
+      if(this.resultsVisible && this.searchResults.length) {
+        return true
+      }
+
+      return false
     },
     maxScore() {
       return Math.max.apply(null, this.searchResults.map(r => r.score))
@@ -102,10 +108,12 @@ export default {
   },
   created() {
     this.searchIndexes = {}
+    this.searchMetas = {}
   },
   watch: {
     lang(val) {
       this.searchIndex = this.searchIndexes[val]
+      this.searchMeta = this.searchMetas[val]
 
       if (this.searchText) {
         this.search(this.searchText)
@@ -115,6 +123,10 @@ export default {
       if (!val) {
         this.closeResults()
         return
+      }
+
+      if (!this.searchIndex) {
+        this.loadIndex()
       }
 
       clearTimeout(this.searchTimeout)
@@ -149,8 +161,8 @@ export default {
       this.resultsVisible = true
     },
     async loadIndex() {
-      if (this.searchIndex || this.loadingIndex) {
-        return true
+      if (this.loadingIndex) {
+        return await waitLoadComplete()
       }
 
       this.loadingIndex = true
@@ -162,14 +174,16 @@ export default {
           return res.json()
         }
 
-        this.status = `${res.status} ${res.statusText}`
+        this.status = `Search index: ${res.status} ${res.statusText}`
       })
 
       if (!searchJson) {
+        this.loadingIndex = false
         return false
       }
 
       this.searchMeta = searchJson.metas || undefined
+      this.searchMetas[this.locale] = this.searchMeta
 
       this.status = 'loading search index'
       this.searchIndex = lunr.Index.load(searchJson)
@@ -184,9 +198,35 @@ export default {
       this.loadingIndex = false
       return true
     },
+    waitLoadingComplete() {
+      const loadPromise = new Promise((resolve) => {
+        let iter = 0
+
+        function resolveWhenLoaded() {
+          if (!this.loadingIndex) {
+            resolve(true)
+            return
+          }
+
+          // timeout after 3s
+          if (iter >= 15) {
+            resolve(false)
+          }
+
+          setTimeout(resolveWhenLoaded, 200)
+          iter++
+        }
+
+        resolveWhenLoaded()
+      })
+    },
     async search(txt) {
-      if (!await this.loadIndex()) {
-        return
+      if (!this.searchIndex) {
+        const indexLoaded = await this.loadIndex()
+
+        if (!indexLoaded) {
+          return
+        }
       }
 
       this.searchResults = this.searchIndex.search(txt)
@@ -250,7 +290,7 @@ export default {
   padding: 0 0.5em 0 2em;
   outline: none;
   transition: all .2s ease;
-  background: #fff url(search.svg) 0.6em 0.5em no-repeat;
+  background: #fff url(icon-search.svg) 0.6em 0.5em no-repeat;
   background-size: 1rem;
 }
 

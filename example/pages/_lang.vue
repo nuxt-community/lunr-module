@@ -13,7 +13,12 @@
 </template>
 
 <script>
+// import LunrSearch from '../.nuxt/lunr/search'
+
 export default {
+  components: {
+    LunrSearch: () => import('../.nuxt/lunr/search')
+  },
   computed: {
     lang () {
       return this.$route.params.lang

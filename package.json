@@ -1,7 +1,7 @@
 {
-  "name": "lunr-module",
+  "name": "@nuxtjs/lunr-module",
   "version": "0.1.0",
-  "description": "Add full-text search to your nuxt application using lunr.js",
+  "description": "Full-text search with pre-build indexes for Nuxt.js using lunr.js",
   "license": "MIT",
   "contributors": [
     {
@@ -9,13 +9,14 @@
     }
   ],
   "main": "lib/module.js",
-  "repository": "pimlie/lunr-module",
+  "repository": "https://github.com/nuxt-community/lunr-module",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "dev": "nuxt example",
     "build": "nuxt build example",
+    "start": "nuxt start example",
     "lint": "eslint --ext .js,.vue example lib test",
     "test": "jest",
     "release": "yarn lint && yarn test && standard-version"
@@ -24,6 +25,7 @@
     "lib"
   ],
   "dependencies": {
+    "consola": "^2.9.0",
     "lunr": "^2.3.6",
     "lunr-languages": "^1.1.0"
   },
