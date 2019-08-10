@@ -25,7 +25,7 @@
     "lib"
   ],
   "dependencies": {
-    "consola": "^2.9.0",
+    "consola": "^2.10.1",
     "lunr": "^2.3.6",
     "lunr-languages": "^1.1.0"
   },
