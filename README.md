@@ -126,7 +126,7 @@ export default {
 The document reference (defined by [option.ref](#ref)) is used in the search index to link all stemmed word segments. If you would use e.g. the page path as the document reference, then for a page with path `/en/offices/emea/nl/contact` that string value will be used to link all the stemmed word segments. This could increases the size of the search index massively, therefor its recommended to create a numeric document reference and use the `meta` property to add the page path for that document reference only once to the search index.
 
 ### Load search component dynamically
-Lunr doesnt export ES6 modules and can't be tree-shaked. Using this module adds `~8.5KB` + `~2KB` for every other language then English to your bundle. See example above for a dynamic import which makes sure the lunr import are not included in your vendors bundle
+Lunr doesnt export ES6 modules and can't be tree-shaked. Using this module adds `~8.5KB` + `~2KB` for every other language then English to your bundle. See example above for a dynamic import which makes sure the lunr imports are not included in your vendors bundle
 
 ### Keep an eye on the search index size in general
 The search index is saved as a json file and thus needs to be parsed on the client. If the json of your search index becomes very large it could be an issue on (mobile) clients. E.g. Safari on iOS limits each top-level entry-point to run for max 10 seconds. See [this](https://github.com/olivernn/lunr.js/issues/330) Lunr.js issue for a possible workaround.
