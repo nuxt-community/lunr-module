@@ -2,8 +2,9 @@
   <component :is="tag" ref="lunr" class="lunr-search">
     <input
       :id="`lunr-search-${id}`"
+      v-model="searchText"
+      type="text"
       class="lunr-input"
-      v-model="searchText" type="text"
       :placeholder="placeholder"
       aria-label="Search"
       aria-haspopup="true"
@@ -13,13 +14,13 @@
       @keyup.enter="keyEnter"
       @keyup.up="keyUp"
       @keyup.down="keyDown"
-    />
+    >
 
     <ul
-      class="lunr-results"
       v-show="showResults"
-      tabIndex="-1"
       ref="results"
+      class="lunr-results"
+      tabIndex="-1"
       :aria-labelledby="`lunr-search-${id}`"
       @keyup.enter="keyEnter"
       @keydown.up.stop.prevent
@@ -27,7 +28,12 @@
       @keyup.up.stop.prevent="keyUp"
       @keyup.down.stop.prevent="keyDown"
     >
-      <li v-if="status" class="lunr-status">{{ status }}</li>
+      <li
+        v-if="status"
+        class="lunr-status"
+      >
+        {{ status }}
+      </li>
       <li
         v-for="(result, index) in searchResults"
         :key="`search-${id}-${result.ref}`"
@@ -36,10 +42,10 @@
         @click.prevent="closeResults"
       >
         <slot
-          v-bind:result="result"
-          v-bind:index="index"
-          v-bind:max-score="maxScore"
-          v-bind:meta="getResultMeta(result)"
+          :result="result"
+          :index="index"
+          :max-score="maxScore"
+          :meta="getResultMeta(result)"
         >
           <nuxt-link :to="result.ref" role="menuitem">
             {{ result.ref }}
@@ -58,7 +64,7 @@ import lunrStemmer from 'lunr-languages/lunr.stemmer.support'
 <%= options.supportedLanguages.map(language => `import ${language}LunrLanguage from 'lunr-languages/lunr.${language}'`).join('\n') %>
 
 !lunr.stemmerSupport && lunrStemmer(lunr)
-<%= options.supportedLanguages.map(language => `!lunr['${language}'] && ${language}LunrLanguage(lunr)`).join('\n') %>
+<%= options.supportedLanguages.map(language => `!lunr.${language} && ${language}LunrLanguage(lunr)`).join('\n') %>
 <% } %>
 
 export default {
@@ -78,10 +84,10 @@ export default {
     lang: {
       type: String,
       default: '<%= options.defaultLanguage %>',
-      validator: val => <%= JSON.stringify(['en'].concat(options.supportedLanguages)) %>.includes(val)
+      validator: val => ['<%= ['en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(val)
     }
   },
-  data() {
+  data () {
     return {
       status: '',
       searchMeta: undefined,
@@ -91,27 +97,23 @@ export default {
     }
   },
   computed: {
-    showResults() {
+    showResults () {
       if (this.status) {
         return true
       }
 
-      if(this.resultsVisible && this.searchResults.length) {
+      if (this.resultsVisible && this.searchResults.length) {
         return true
       }
 
       return false
     },
-    maxScore() {
+    maxScore () {
       return Math.max.apply(null, this.searchResults.map(r => r.score))
     }
   },
-  created() {
-    this.searchIndexes = {}
-    this.searchMetas = {}
-  },
   watch: {
-    lang(val) {
+    lang (val) {
       this.searchIndex = this.searchIndexes[val]
       this.searchMeta = this.searchMetas[val]
 
@@ -119,7 +121,7 @@ export default {
         this.search(this.searchText)
       }
     },
-    searchText(val) {
+    searchText (val) {
       if (!val) {
         this.closeResults()
         return
@@ -132,7 +134,7 @@ export default {
       clearTimeout(this.searchTimeout)
       this.searchTimeout = setTimeout(() => this.search(val), 200)
     },
-    showResults(val) {
+    showResults (val) {
       if (val) {
         this.addBodyListener()
       } else {
@@ -140,29 +142,33 @@ export default {
       }
     }
   },
+  created () {
+    this.searchIndexes = {}
+    this.searchMetas = {}
+  },
   methods: {
-    addBodyListener() {
+    addBodyListener () {
       document.body.addEventListener('mousedown', this.bodyListener)
     },
-    removeBodyListener() {
+    removeBodyListener () {
       document.body.removeEventListener('mousedown', this.bodyListener)
     },
-    bodyListener(event) {
+    bodyListener (event) {
       if (!this.$refs.lunr.contains(event.target)) {
         this.resultsVisible = false
       }
     },
-    closeResults() {
+    closeResults () {
       this.searchText = ''
       this.resultsVisible = false
       this.removeBodyListener()
     },
-    openResults() {
+    openResults () {
       this.resultsVisible = true
     },
-    async loadIndex() {
+    async loadIndex () {
       if (this.loadingIndex) {
-        return await waitLoadComplete()
+        return this.waitLoadingComplete()
       }
 
       this.loadingIndex = true
@@ -198,11 +204,11 @@ export default {
       this.loadingIndex = false
       return true
     },
-    waitLoadingComplete() {
-      const loadPromise = new Promise((resolve) => {
+    waitLoadingComplete () {
+      return new Promise((resolve) => {
         let iter = 0
 
-        function resolveWhenLoaded() {
+        function resolveWhenLoaded () {
           if (!this.loadingIndex) {
             resolve(true)
             return
@@ -220,7 +226,7 @@ export default {
         resolveWhenLoaded()
       })
     },
-    async search(txt) {
+    async search (txt) {
       if (!this.searchIndex) {
         const indexLoaded = await this.loadIndex()
 
@@ -233,21 +239,21 @@ export default {
 
       this.openResults()
     },
-    getResultMeta({ ref }) {
+    getResultMeta ({ ref }) {
       if (!this.searchMeta || !this.searchMeta[ref]) {
         return
       }
 
       return this.searchMeta[ref]
     },
-    keyEnter() {
+    keyEnter () {
       const el = this.$refs.results.querySelector(':focus')
       if (el) {
         el.querySelector('a').click()
         this.closeResults()
       }
     },
-    keyUp() {
+    keyUp () {
       if (!this.showResults) {
         return
       }
@@ -259,7 +265,7 @@ export default {
         el.previousSibling.focus()
       }
     },
-    keyDown() {
+    keyDown () {
       if (!this.showResults) {
         return
       }

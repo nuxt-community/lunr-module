@@ -18,8 +18,9 @@
     "build": "nuxt build example",
     "start": "nuxt start example",
     "lint": "eslint --ext .js,.vue example lib test",
+    "lint:template": "eslint --no-ignore --ext .js,.vue example/.nuxt/lunr/",
     "test": "jest",
-    "release": "yarn lint && yarn test && standard-version"
+    "release": "yarn lint && yarn test && yarn lint:template && standard-version"
   },
   "files": [
     "lib"
