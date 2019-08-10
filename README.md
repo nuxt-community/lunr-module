@@ -203,7 +203,7 @@ The property names in your document which will be indexed
 
 > use `nuxt.callHook(<name>, <arg>)` if you wish to use these hooks
 
-#### lurn:document
+#### lunr:document
 - arg: `({ locale?, document, meta? })`
 
 The main hook which is used to add documents to the search index. You need to pass an object as described. Both locale as meta are optional. If no locale is passed the `defaultLanguage` will be used
@@ -212,28 +212,28 @@ The main hook which is used to add documents to the search index. You need to pa
 
 > use `nuxt.hook(<name>, <callback>)` if you wish to use these hooks. The callback function receives the listed arguments
 
-#### lurn:index:beforeCreate
+#### lunr:index:beforeCreate
 - arg: `({ locale, builder })`
 
 > Use this hook if you e.g. want to register custom lunr plugins
 
 This hook is called after the lunr builder is instantiated but before language plugins have been added or any refs and fields are set
 
-#### lurn:index:created
+#### lunr:index:created
 - arg: `({ locale, builder })`
 
 > Use this hook if you e.g. want to add extra documents to an index
 
 This hook is called when the lunr builder has been setup, just before the documents are added to the index.
 
-#### lurn:index:done
+#### lunr:index:done
 - arg: `({ locale, builder, index })`
 
 > Use this hook if you wish to interact with the index before exporting it
 
 This hook is called just before the index is exported as an json object
 
-#### lurn:asset
+#### lunr:asset
 - arg: `({ locale, json })`
 
 > Use this hook if you wish to manipulate the json which is emitted as search index for the locale
