@@ -1,6 +1,6 @@
 {
   "name": "@nuxtjs/lunr-module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Full-text search with pre-build indexes for Nuxt.js using lunr.js",
   "license": "MIT",
   "contributors": [
