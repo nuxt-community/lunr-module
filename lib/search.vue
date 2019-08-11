@@ -67,6 +67,8 @@ import lunrStemmer from 'lunr-languages/lunr.stemmer.support'
 <%= options.supportedLanguages.map(language => `!lunr.${language} && ${language}LunrLanguage(lunr)`).join('\n') %>
 <% } %>
 
+const normalizeLanguage = locale => (locale || '').substr(0, 2).toLowerCase()
+
 export default {
   props: {
     id: {
@@ -83,8 +85,13 @@ export default {
     },
     lang: {
       type: String,
-      default: '<%= options.defaultLanguage %>',
-      validator: val => ['<%= ['en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(val)
+      default: '',
+      validator: val => ['<%= ['', 'en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(val)
+    },
+    locale: {
+      type: String,
+      default: '',
+      validator: val => ['<%= ['', 'en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(normalizeLanguage(val))
     }
   },
   data () {
@@ -97,6 +104,17 @@ export default {
     }
   },
   computed: {
+    language () {
+      if (this.lang) {
+        return this.lang
+      }
+
+      if (this.locale) {
+        return normalizeLanguage(this.locale)
+      }
+
+      return '<%= options.defaultLanguage %>'
+    },
     showResults () {
       if (this.status) {
         return true
@@ -113,7 +131,7 @@ export default {
     }
   },
   watch: {
-    lang (val) {
+    language (val) {
       this.searchIndex = this.searchIndexes[val]
       this.searchMeta = this.searchMetas[val]
 
@@ -174,7 +192,7 @@ export default {
       this.loadingIndex = true
 
       this.status = 'fetching search index'
-      const url = `<%= `${options.publicPath}${options.path}` %>/${this.lang}.json`
+      const url = `<%= `${options.publicPath}${options.path}` %>/${this.language}.json`
       const searchJson = await fetch(url).then((res) => {
         if (res.status === 200) {
           return res.json()
@@ -189,14 +207,14 @@ export default {
       }
 
       this.searchMeta = searchJson.metas || undefined
-      this.searchMetas[this.locale] = this.searchMeta
+      this.searchMetas[this.language] = this.searchMeta
 
       this.status = 'loading search index'
       this.searchIndex = lunr.Index.load(searchJson)
-      this.searchIndexes[this.locale] = this.searchIndex
+      this.searchIndexes[this.language] = this.searchIndex
 
       this.$emit('loaded', {
-        lang: this.lang,
+        lang: this.language,
         json: searchJson
       })
 
