@@ -34,7 +34,7 @@ export default {
 
       for (const doc of docs) {
         nuxt.callHook('lunr:document', {
-          locale: documentIndex === 1 ? 'fr' : (documentIndex % 2 ? 'en' : 'nl'),
+          locale: documentIndex === 1 ? 'fr' : (documentIndex % 2 ? 'en' : 'nl_NL'),
           document: {
             id: documentIndex,
             ...doc

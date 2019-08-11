@@ -52,8 +52,8 @@ describe('basic', () => {
     expect(document.querySelectorAll('li').length).toBe(1)
   })
 
-  test('search /nl/', async () => {
-    const window = await nuxt.server.renderAndGetWindow(url('/nl/'))
+  test('search /nl_NL/', async () => {
+    const window = await nuxt.server.renderAndGetWindow(url('/nl_NL/'))
     const { document } = window
 
     await waitFor(500)

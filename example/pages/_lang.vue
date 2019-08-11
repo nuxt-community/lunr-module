@@ -1,7 +1,7 @@
 <template>
   <div class="body">
     <h1>Moonwalkers</h1>
-    <lunr-search :lang="lang" class="search">
+    <lunr-search :lang="lang" :locale="locale" class="search">
       <template v-slot:default="{ result, index, maxScore, meta }">
         <article>
           <h2>{{ meta.name }} <small>score: {{ Math.round(100 * result.score / maxScore) }}%</small></h2>
@@ -21,7 +21,20 @@ export default {
   },
   computed: {
     lang () {
-      return this.$route.params.lang
+      const param = this.$route.params.lang
+      if (param.length === 2) {
+        return param
+      }
+
+      return ''
+    },
+    locale () {
+      const param = this.$route.params.lang
+      if (param.length > 2) {
+        return param
+      }
+
+      return ''
     }
   }
 }
