@@ -9,6 +9,8 @@ export default {
     resourceHints: false
   },
   modules: [{
+    src: 'nuxt-i18n'
+  }, {
     handler: require('../'),
     options: {
       globalComponent: 'global-lunr',
@@ -19,6 +21,25 @@ export default {
       fields: ['name', 'body']
     }
   }],
+  i18n: {
+    locales: ['en', 'nl_NL'],
+    defaultLocale: 'en',
+    strategy: 'prefix_and_default',
+    vueI18n: {
+      messages: {
+        en: {
+          'lunr-module': {
+            placeholderText: 'search'
+          }
+        },
+        nl_NL: {
+          'lunr-module': {
+            placeholderText: 'zoek'
+          }
+        }
+      }
+    }
+  },
   hooks: {
     ready (nuxt) {
       let documentIndex = 1
