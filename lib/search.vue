@@ -1,14 +1,14 @@
 <template>
   <component :is="tag" ref="lunr" class="lunr-search">
     <input
-      :id="`lunr-search-${id}`"
+      :id="`lunr-search${elementId}`"
       v-model="searchText"
       type="text"
       class="lunr-input"
-      :placeholder="placeholder"
+      :placeholder="placeholderText"
       aria-label="Search"
       aria-haspopup="true"
-      aria-expanded="showResults"
+      :aria-expanded="showResults"
       autocomplete="off"
       spellcheck="false"
       @keyup.enter="keyEnter"
@@ -21,7 +21,7 @@
       ref="results"
       class="lunr-results"
       tabIndex="-1"
-      :aria-labelledby="`lunr-search-${id}`"
+      :aria-labelledby="`lunr-search${elementId}`"
       @keyup.enter="keyEnter"
       @keydown.up.stop.prevent
       @keydown.down.stop.prevent
@@ -29,14 +29,14 @@
       @keyup.down.stop.prevent="keyDown"
     >
       <li
-        v-if="status"
+        v-if="statusMsg"
         class="lunr-status"
       >
-        {{ status }}
+        {{ statusMsg }}
       </li>
       <li
         v-for="(result, index) in searchResults"
-        :key="`search-${id}-${result.ref}`"
+        :key="`search${elementId}-${result.ref}`"
         class="lunr-result"
         :tabIndex="100 + index"
         @click.prevent="closeResults"
@@ -69,6 +69,8 @@ import lunrStemmer from 'lunr-languages/lunr.stemmer.support'
 
 const normalizeLanguage = locale => (locale || '').substr(0, 2).toLowerCase()
 
+const statusMessages = <%= JSON.stringify(options.statusMessages, null, 2) %>
+
 export default {
   props: {
     id: {
@@ -81,7 +83,7 @@ export default {
     },
     placeholder: {
       type: String,
-      default: 'search'
+      default: '<%= options.placeholderText %>'
     },
     lang: {
       type: String,
@@ -96,7 +98,8 @@ export default {
   },
   data () {
     return {
-      status: '',
+      placeholderText: '',
+      statusMsg: '',
       searchMeta: undefined,
       searchText: '',
       searchResults: [],
@@ -104,6 +107,9 @@ export default {
     }
   },
   computed: {
+    elementId () {
+      return this.id ? `-${this.id}` : ''
+    },
     language () {
       if (this.lang) {
         return this.lang
@@ -116,24 +122,31 @@ export default {
       return '<%= options.defaultLanguage %>'
     },
     showResults () {
-      if (this.status) {
+      if (this.statusMsg) {
         return true
       }
 
-      if (this.resultsVisible && this.searchResults.length) {
+      if (this.resultsVisible) {
         return true
       }
 
       return false
     },
     maxScore () {
-      return Math.max.apply(null, this.searchResults.map(r => r.score))
+      if (this.searchResults.length) {
+        return Math.max.apply(null, this.searchResults.map(r => r.score))
+      }
+
+      return 0
     }
   },
   watch: {
     language (val) {
       this.searchIndex = this.searchIndexes[val]
       this.searchMeta = this.searchMetas[val]
+      this.searchResults = []
+
+      this.setPlaceholderText()
 
       if (this.searchText) {
         this.search(this.searchText)
@@ -158,11 +171,16 @@ export default {
       } else {
         this.removeBodyListener()
       }
+    },
+    placeholder(val) {
+      this.setPlaceholderText(val)
     }
   },
   created () {
     this.searchIndexes = {}
     this.searchMetas = {}
+
+    this.setPlaceholderText()
   },
   methods: {
     addBodyListener () {
@@ -172,7 +190,7 @@ export default {
       document.body.removeEventListener('mousedown', this.bodyListener)
     },
     bodyListener (event) {
-      if (!this.$refs.lunr.contains(event.target)) {
+      if (this.$refs.lunr && !this.$refs.lunr.contains(event.target)) {
         this.resultsVisible = false
       }
     },
@@ -180,6 +198,7 @@ export default {
       this.searchText = ''
       this.resultsVisible = false
       this.removeBodyListener()
+      this.clearStatus()
     },
     openResults () {
       this.resultsVisible = true
@@ -191,14 +210,14 @@ export default {
 
       this.loadingIndex = true
 
-      this.status = 'fetching search index'
+      this.setStatus('fetching')
       const url = `<%= `${options.publicPath}${options.path}` %>/${this.language}.json`
       const searchJson = await fetch(url).then((res) => {
         if (res.status === 200) {
           return res.json()
         }
 
-        this.status = `Search index: ${res.status} ${res.statusText}`
+        this.statusMsg = `Search index: ${res.status} ${res.statusText}`
       })
 
       if (!searchJson) {
@@ -209,7 +228,7 @@ export default {
       this.searchMeta = searchJson.metas || undefined
       this.searchMetas[this.language] = this.searchMeta
 
-      this.status = 'loading search index'
+      this.setStatus('loading')
       this.searchIndex = lunr.Index.load(searchJson)
       this.searchIndexes[this.language] = this.searchIndex
 
@@ -218,7 +237,7 @@ export default {
         json: searchJson
       })
 
-      this.status = ''
+      this.clearStatus()
       this.loadingIndex = false
       return true
     },
@@ -253,9 +272,50 @@ export default {
         }
       }
 
+      this.setStatus('searching')
+
       this.searchResults = this.searchIndex.search(txt)
 
+      if (!this.searchResults || !this.searchResults.length) {
+        this.setStatus('noresults')
+      } else {
+        this.clearStatus()
+      }
+
       this.openResults()
+    },
+    clearStatus() {
+      this.statusMsg = ''
+    },
+    setStatus(id) {
+      this.statusMsg = this.getStatusText(id)
+    },
+    getStatusText(statusId) {
+      <% if (options.useI18N) { %>
+      const translationKey = `lunr-module.${statusId}`
+      const hasTranslation = this.$te(translationKey)
+      if (hasTranslation) {
+        return this.$t(translationKey)
+      }
+      <% } %>
+
+      if (statusMessages[statusId]) {
+        return statusMessages[statusId]
+      }
+
+      return statusId
+    },
+    setPlaceholderText(text) {
+      if (text) {
+        this.placeholderText = text
+      }
+      <% if (options.useI18N) { %>
+      const translationKey = `lunr-module.placeholderText`
+      const hasTranslation = this.$te(translationKey)
+      if (hasTranslation) {
+        this.placeholderText = this.$t(translationKey)
+      }
+      <% } %>
     },
     getResultMeta ({ ref }) {
       if (!this.searchMeta || !this.searchMeta[ref]) {

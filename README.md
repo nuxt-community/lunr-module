@@ -199,6 +199,23 @@ The name of the property in your document which specifies what as reference shou
 
 The property names in your document which will be indexed
 
+#### placeholderText
+- type `String`
+- default `Search`
+
+The text that is put in the placeholder of the search input field. If you are using nuxt-i18n, you can also provide a translation with key `lunr-module.placeholderText`
+
+#### statusMessages
+- type `Array<String>`
+- default `{
+  fetching: 'Fetching search index',
+  loading: 'Loading search index',
+  searching: 'Searching...',
+  noresults: 'No results found'
+}`
+
+The status messages which are displayed during the search life cycle. If you are using nuxt-i18n, you can also provide a translation with key `lunr-module.${key}`. Eg use `lunr-module.noresults` to provide a translation for the no results found status.
+
 ### Hooks (Listening)
 
 > use `nuxt.callHook(<name>, <arg>)` if you wish to use these hooks
