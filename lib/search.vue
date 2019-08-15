@@ -69,7 +69,7 @@ import lunrStemmer from 'lunr-languages/lunr.stemmer.support'
 
 const normalizeLanguage = locale => (locale || '').substr(0, 2).toLowerCase()
 
-const statusMessages = <%= JSON.stringify(options.statusMessages, null, 2) %>
+const statusMessages = JSON.parse(`<%= JSON.stringify(options.statusMessages, null, 2) %>`)
 
 export default {
   props: {
@@ -172,7 +172,7 @@ export default {
         this.removeBodyListener()
       }
     },
-    placeholder(val) {
+    placeholder (val) {
       this.setPlaceholderText(val)
     }
   },
@@ -284,13 +284,13 @@ export default {
 
       this.openResults()
     },
-    clearStatus() {
+    clearStatus () {
       this.statusMsg = ''
     },
-    setStatus(id) {
+    setStatus (id) {
       this.statusMsg = this.getStatusText(id)
     },
-    getStatusText(statusId) {
+    getStatusText (statusId) {
       <% if (options.useI18N) { %>
       const translationKey = `lunr-module.${statusId}`
       const hasTranslation = this.$te(translationKey)
@@ -305,7 +305,7 @@ export default {
 
       return statusId
     },
-    setPlaceholderText(text) {
+    setPlaceholderText (text) {
       if (text) {
         this.placeholderText = text
       }
