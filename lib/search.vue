@@ -71,6 +71,14 @@ const normalizeLanguage = locale => (locale || '').substr(0, 2).toLowerCase()
 
 const statusMessages = JSON.parse(`<%= JSON.stringify(options.statusMessages, null, 2) %>`)
 
+// cache previously loaded indexes
+const indexCache = {}
+<%
+const validatedLanguages = ['', 'en']
+  .concat(options.supportedLanguages, Object.keys(options.languageStemmerMap))
+  .filter((lang, index, array) => index === array.findIndex(item => item === lang))
+  .join(`', '`)
+%>
 export default {
   props: {
     id: {
@@ -88,12 +96,12 @@ export default {
     lang: {
       type: String,
       default: '',
-      validator: val => ['<%= ['', 'en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(val)
+      validator: val => ['<%= validatedLanguages %>'].includes(val)
     },
     locale: {
       type: String,
       default: '',
-      validator: val => ['<%= ['', 'en'].concat(options.supportedLanguages).join(`', '`) %>'].includes(normalizeLanguage(val))
+      validator: val => ['<%= validatedLanguages %>'].includes(normalizeLanguage(val))
     }
   },
   data () {
@@ -141,9 +149,9 @@ export default {
     }
   },
   watch: {
-    language (val) {
-      this.searchIndex = this.searchIndexes[val]
-      this.searchMeta = this.searchMetas[val]
+    async language (val) {
+      this.searchIndex = undefined
+      this.searchMeta = undefined
       this.searchResults = []
 
       this.setPlaceholderText()
@@ -152,14 +160,14 @@ export default {
         this.search(this.searchText)
       }
     },
-    searchText (val) {
+    async searchText (val) {
       if (!val) {
         this.closeResults()
         return
       }
 
       if (!this.searchIndex) {
-        this.loadIndex()
+        await this.loadIndex()
       }
 
       clearTimeout(this.searchTimeout)
@@ -177,9 +185,6 @@ export default {
     }
   },
   created () {
-    this.searchIndexes = {}
-    this.searchMetas = {}
-
     this.setPlaceholderText()
   },
   methods: {
@@ -210,6 +215,13 @@ export default {
 
       this.loadingIndex = true
 
+      if (indexCache[this.language]) {
+        this.searchIndex = indexCache[this.language].index
+        this.searchMeta = indexCache[this.language].meta
+        this.loadingIndex = false
+        return
+      }
+
       this.setStatus('fetching')
       const url = `<%= `${options.publicPath}${options.path}` %>/${this.language}.json`
       const searchJson = await fetch(url).then((res) => {
@@ -217,7 +229,7 @@ export default {
           return res.json()
         }
 
-        this.statusMsg = `Search index: ${res.status} ${res.statusText}`
+        this.setStatus(`Search index: ${res.status} ${res.statusText}`)
       })
 
       if (!searchJson) {
@@ -225,12 +237,14 @@ export default {
         return false
       }
 
-      this.searchMeta = searchJson.metas || undefined
-      this.searchMetas[this.language] = this.searchMeta
-
       this.setStatus('loading')
+      this.searchMeta = searchJson.metas || undefined
       this.searchIndex = lunr.Index.load(searchJson)
-      this.searchIndexes[this.language] = this.searchIndex
+
+      indexCache[this.language] = {
+        meta: this.searchMeta,
+        index: this.searchIndex
+      }
 
       this.$emit('loaded', {
         lang: this.language,
@@ -245,7 +259,7 @@ export default {
       return new Promise((resolve) => {
         let iter = 0
 
-        function resolveWhenLoaded () {
+        const resolveWhenLoaded = () => {
           if (!this.loadingIndex) {
             resolve(true)
             return
@@ -256,7 +270,7 @@ export default {
             resolve(false)
           }
 
-          setTimeout(resolveWhenLoaded, 200)
+          setTimeout(resolveWhenLoaded, 50)
           iter++
         }
 
@@ -292,11 +306,13 @@ export default {
     },
     getStatusText (statusId) {
       <% if (options.useI18N) { %>
-      const translationKey = `lunr-module.${statusId}`
-      const hasTranslation = this.$te(translationKey)
-      if (hasTranslation) {
-        return this.$t(translationKey)
-      }
+      try {
+        const translationKey = `lunr-module.${statusId}`
+        const hasTranslation = this.$te(translationKey)
+        if (hasTranslation) {
+          return this.$t(translationKey)
+        }
+      } catch (error) {}
       <% } %>
 
       if (statusMessages[statusId]) {

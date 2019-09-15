@@ -8,21 +8,24 @@ export default {
   render: {
     resourceHints: false
   },
-  modules: [{
-    src: 'nuxt-i18n'
-  }, {
-    handler: require('../'),
-    options: {
-      globalComponent: 'global-lunr',
-      css: false,
-      path: 'my-crazy-search-index-path',
-      defaultLanguage: 'fr',
-      languages: ['en', 'nl'],
-      fields: ['name', 'body']
-    }
-  }],
+  modules: [
+    'nuxt-i18n',
+    {
+      handler: require('../'),
+      options: {
+        globalComponent: 'global-lunr',
+        css: false,
+        path: 'my-crazy-search-index-path',
+        defaultLanguage: 'french',
+        languages: ['en'],
+        languageStemmerMap: {
+          'af': 'nl'
+        },
+        fields: ['name', 'body']
+      }
+    }],
   i18n: {
-    locales: ['en', 'nl_NL'],
+    locales: ['en', 'fr', 'af'],
     defaultLocale: 'en',
     strategy: 'prefix_and_default',
     vueI18n: {
@@ -32,7 +35,12 @@ export default {
             placeholderText: 'search'
           }
         },
-        nl_NL: {
+        fr: {
+          'lunr-module': {
+            placeholderText: 'chercher'
+          }
+        },
+        af: {
           'lunr-module': {
             placeholderText: 'zoek'
           }
@@ -55,7 +63,7 @@ export default {
 
       for (const doc of docs) {
         nuxt.callHook('lunr:document', {
-          locale: documentIndex === 1 ? 'fr' : (documentIndex % 2 ? 'en' : 'nl_NL'),
+          locale: documentIndex === 1 ? 'fr' : (documentIndex % 2 ? 'en' : 'af'),
           document: {
             id: documentIndex,
             ...doc
@@ -63,7 +71,7 @@ export default {
           /* !! WARNING: Do NOT copy this blindly !!
            *
            * When adding the full document as meta the json of your
-           * search index will become very large very easily. Parsing that
+           * search index will become very large very quickly. Parsing that
            * json on the client (especially mobile clients) could become a
            * performance issue
            *
@@ -77,5 +85,8 @@ export default {
         documentIndex++
       }
     }
+  },
+  build: {
+    terser: false
   }
 }

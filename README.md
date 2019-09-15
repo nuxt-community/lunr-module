@@ -70,7 +70,7 @@ const meta = {
 }
 
 nuxt.callHook('lunr:document', ({
-  locale: 'nl', // optional, default en
+  locale: 'af', // optional, default en
   document,
   meta // optional
 })
@@ -177,7 +177,15 @@ The default language to use. This is also the fall-back language if you pass a d
 - type `String`, `Array`
 - default `undefined`
 
-A string or array of the languages for which a search index needs to be created
+A string or array of the languages for which a search index needs to be created.
+
+Although this option might look redundant (i.e. why not just create a search index for every language which is passed), it provides a check to prevent 'rogue' documents from being indexed into a separate index.
+
+#### languageStemmerMap
+- type `Object`
+- default `{}`
+
+An object which contains a map of unsupported languages to supported stemming languages (by lunr). Use this to specify which stemming language should be used if you want to build a search index for a language which is not supported by lunr (yet).
 
 #### path
 - type `String`
