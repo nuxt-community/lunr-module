@@ -149,7 +149,7 @@ export default {
     }
   },
   watch: {
-    async language (val) {
+    language (val) {
       this.searchIndex = undefined
       this.searchMeta = undefined
       this.searchResults = []
@@ -160,14 +160,10 @@ export default {
         this.search(this.searchText)
       }
     },
-    async searchText (val) {
+    searchText (val) {
       if (!val) {
         this.closeResults()
         return
-      }
-
-      if (!this.searchIndex) {
-        await this.loadIndex()
       }
 
       clearTimeout(this.searchTimeout)
