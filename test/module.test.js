@@ -31,6 +31,7 @@ describe('basic', () => {
         folder: nuxt.options.generate.dir
       }
     })
+    browser.setLogLevel(['warn', 'error', 'log', 'info'])
 
     expect(consola.warn).toHaveBeenCalledTimes(2)
     expect(consola.warn).toHaveBeenCalledWith(expect.stringContaining('Unable to index document'), expect.anything())

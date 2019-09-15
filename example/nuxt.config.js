@@ -23,7 +23,8 @@ export default {
         },
         fields: ['name', 'body']
       }
-    }],
+    }
+  ],
   i18n: {
     locales: ['en', 'fr', 'af'],
     defaultLocale: 'en',
