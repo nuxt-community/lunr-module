@@ -13,7 +13,7 @@ export default {
     {
       handler: require('../'),
       options: {
-        globalComponent: 'global-lunr',
+        globalComponent: 'GlobalLunr',
         css: false,
         path: 'my-crazy-search-index-path',
         defaultLanguage: 'french',

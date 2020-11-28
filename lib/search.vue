@@ -322,7 +322,7 @@ export default {
         this.placeholderText = text
       }
       <% if (options.useI18N) { %>
-      const translationKey = `lunr-module.placeholderText`
+      const translationKey = 'lunr-module.placeholderText'
       const hasTranslation = this.$te(translationKey)
       if (hasTranslation) {
         this.placeholderText = this.$t(translationKey)
