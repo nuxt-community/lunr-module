@@ -11,6 +11,9 @@ module.exports = {
     '^@@$': '<rootDir>',
     '^@/(.*)$': '<rootDir>/lib/$1'
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(nuxt-i18n))',
+  ],
   transform: {
     '^.+\\.js$': 'babel-jest'
   }

@@ -26,6 +26,7 @@ export default {
     }
   ],
   i18n: {
+    detectBrowserLanguage: false,
     locales: ['en', 'fr', 'af'],
     defaultLocale: 'en',
     strategy: 'prefix_and_default',
