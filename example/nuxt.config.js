@@ -19,7 +19,7 @@ export default {
         defaultLanguage: 'french',
         languages: ['en'],
         languageStemmerMap: {
-          'af': 'nl'
+          af: 'nl'
         },
         fields: ['name', 'body']
       }

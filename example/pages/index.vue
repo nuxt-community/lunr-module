@@ -10,9 +10,11 @@
 
     <h1>Moonwalkers ({{ this.$i18n.locale }})</h1>
     <lunr-search :lang="lang" :locale="locale" class="search">
-      <template v-slot:default="{ result, index, maxScore, meta }">
+      <template #default="{ result, index, maxScore, meta }">
         <article>
-          <h2>{{ meta.name }} <small>score: {{ Math.round(100 * result.score / maxScore) }}%</small></h2>
+          <h2 :title="`Result ${index + 1}`">
+            {{ meta.name }} <small>score: {{ Math.round(100 * result.score / maxScore) }}%</small>
+          </h2>
           <p>{{ meta.body }}</p>
         </article>
       </template>
