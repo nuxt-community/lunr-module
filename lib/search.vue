@@ -105,7 +105,7 @@ export default {
     },
     fuzzy: {
       type: Boolean,
-      default: '<%= options.fuzzy %>'
+      default: JSON.parse('<%= options.fuzzy %>')
     },
   },
   data () {
@@ -289,7 +289,7 @@ export default {
       this.setStatus('searching')
 
       if (this.fuzzy) {
-        txt = txt + '*'
+        txt = txt + '* ' + txt
       }
 
       this.searchResults = this.searchIndex.search(txt)
