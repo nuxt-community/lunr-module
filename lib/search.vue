@@ -102,7 +102,11 @@ export default {
       type: String,
       default: '',
       validator: val => ['<%= validatedLanguages %>'].includes(normalizeLanguage(val))
-    }
+    },
+    fuzzy: {
+      type: Boolean,
+      default: '<%= options.fuzzy %>'
+    },
   },
   data () {
     return {
@@ -283,6 +287,10 @@ export default {
       }
 
       this.setStatus('searching')
+
+      if (this.fuzzy) {
+        txt = txt + '*'
+      }
 
       this.searchResults = this.searchIndex.search(txt)
 
