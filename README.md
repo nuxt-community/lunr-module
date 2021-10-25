@@ -44,7 +44,8 @@ $ yarn add @nuxtjs/lunr-module # or npm install @nuxtjs/lunr-module
         fields: [
           'title',
           'body'
-        ]
+        ],
+        fuzzy: false
       } */
     }
   ]
