@@ -73,7 +73,7 @@ nuxt.callHook('lunr:document', ({
   locale: 'af', // optional, default en
   document,
   meta // optional
-})
+}))
 ```
 
 #### Locale support
