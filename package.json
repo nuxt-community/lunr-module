@@ -42,7 +42,7 @@
     "eslint": "latest",
     "get-port": "latest",
     "jest": "latest",
-    "jsdom": "^16.4.0",
+    "jsdom": "^22.1.0",
     "nuxt-edge": "latest",
     "nuxt-i18n": "6.15.4",
     "standard-version": "latest",
