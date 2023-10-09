@@ -26,9 +26,9 @@
     "lib"
   ],
   "dependencies": {
-    "consola": "^2.15.0",
+    "consola": "^2.15.3",
     "lunr": "^2.3.9",
-    "lunr-languages": "^1.4.0"
+    "lunr-languages": "^1.14.0"
   },
   "devDependencies": {
     "@babel/core": "latest",
@@ -42,10 +42,10 @@
     "eslint": "latest",
     "get-port": "latest",
     "jest": "latest",
-    "jsdom": "^16.4.0",
+    "jsdom": "^16.7.0",
     "nuxt-edge": "latest",
-    "nuxt-i18n": "6.15.4",
+    "nuxt-i18n": "6.28.1",
     "standard-version": "latest",
-    "tib": "^0.7.4"
+    "tib": "^0.7.5"
   }
 }
